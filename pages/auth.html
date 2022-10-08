@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Authenticate</title>
+        <style>
+            html,
+            body {
+                background-color: #000;
+                color: white;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            .heading {
+                font-size: 20px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <span class="heading">Login to WIFI network</span><br><br>
+        <input type="text" id="username" placeholder="username"><br>
+        <input type="password" id="password" placeholder="password"><br><br>
+        <button id="BTNAUTH" onclick="attemptUserAuth()">Login</button>
+        <script>
+            function attemptUserAuth() {
+                console.log("Attempting to authenticate user");
+                fetch("/auth", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: document.getElementById("username").value,
+                        password: document.getElementById("password").value
+                    })
+                })
+                .then(r => r.json())
+                .then(r => {
+                    console.log(r)
+                })
+                .catch(e => {
+                    console.error("Failed to authenticate user:", e);
+                })
+            }
+        </script>
+    </body>
+</html>

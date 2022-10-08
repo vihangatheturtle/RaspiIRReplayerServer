@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PiIR Remote Console</title>
+        <style>
+
+        </style>
+    </head>
+    <body>
+        <div>
+            <span>PiIR</span>
+        </div>
+        <script>
+            window.onload = () => {
+                console.log("Page finished loading")
+                const cookiesList = document.cookie.split(";")
+                var cookies = {};
+
+                for (let i = 0; i < cookiesList.length; i++) {
+                    const c = cookiesList[i];
+
+                    if (c === "") continue
+                    if (!c.includes("=")) continue
+
+                    const objects = c.split("=");
+
+                    if (objects.length < 2) continue
+
+                    cookies[objects[0]] = objects[1];
+                }
+
+                if (!Object.keys(cookies).includes("auth")) {
+                    location = "/auth"
+                }
+            }
+        </script>
+    </body>
+</html>
