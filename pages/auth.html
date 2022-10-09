@@ -39,7 +39,14 @@
                 })
                 .then(r => r.json())
                 .then(r => {
-                    console.log(r)
+                    if (r.error === true) {
+                        alert(r.message ? r.message : "Failed to authenticate with the server");
+                        console.error(r.message ? r.message : "Failed to authenticate with the server", r);
+                    } else {
+                        console.log("Successfully verified user " + r.account.username);
+                        document.cookie = `auth=${r.token}`;
+                        location = "/"
+                    }
                 })
                 .catch(e => {
                     console.error("Failed to authenticate user:", e);
