@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const fs = require("fs");
+const fetch = require("node-fetch");
 
 const port = 3000;
 const hostName = "pi.wifi";
@@ -10,6 +11,8 @@ const app = express();
 
 const tokens = {};
 
+var device = null;
+
 var users = {
     "0": {
         username: "Vinga",
@@ -17,6 +20,55 @@ var users = {
         authHash: "2f90863de9bce92fe031f503fb49a19b2c9a5bf9da2b5176bf15333560b5103d03198a35494f9899ecff1dd788a4ca5e32b282396ba4fca3bb32e686e0dc7707"
     }
 }
+
+async function replayIR(data) {
+    console.log("Sending IR signal...")
+    var req = await fetch("http://localhost:8000/replay-ir", {
+        method: "POST",
+        body: data
+    })
+    var res = await req.json()
+    if (!Object.keys(res).includes("error")) {
+        return true
+    }
+    return false
+}
+
+async function learnIR() {
+    console.log("Learning IR signals...")
+    var req = await fetch("http://localhost:8000/learn-ir")
+    var res = await req.json()
+    if (!Object.keys(res).includes("error")) {
+        return res.data
+    }
+    return undefined
+}
+
+async function discoverDevices() {
+    console.log("Discovering Broadlink devices...")
+    while (true) {
+        try {
+            var req = await fetch("http://localhost:8000/discover")
+            var res = await req.json()
+            if (!Object.keys(res).includes("error")) {
+                device = res
+                return device
+            }
+        } catch { }
+    }
+}
+
+discoverDevices()
+.then(async dev => {
+    console.log("DEVICE", dev)
+    const signal = await learnIR();
+    console.log(signal)
+    async function pp() {
+        console.log(await replayIR(signal) ? "Replayed signal" : "Failed to replay signal")
+        setTimeout(pp, 250);
+    }
+    pp()
+})
 
 function getUserFromToken(token) {
     for (let i = 0; i < Object.keys(users).length; i++) {
